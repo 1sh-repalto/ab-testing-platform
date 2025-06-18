@@ -1,1 +1,6 @@
-node_modules\n.env\ndist\nfrontend/.next\nsdk/dist\n*.log
+node_modules
+.env
+dist
+frontend/.next
+sdk/dist
+*.log
