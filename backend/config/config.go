@@ -2,9 +2,8 @@ package config
 
 import (
 	"log"
-	"os"
 
-	"github.com/joho/dotenv"
+	"github.com/joho/godotenv"
 )
 
 func LoadEnv() {
