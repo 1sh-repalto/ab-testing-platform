@@ -24,7 +24,7 @@ func main() {
 	}))
 
 	routes.RegisterUserRoutes(r)
-	// routes.RegisterExperimentRoutes(r)
+	routes.RegisterExperimentRoutes(r)
 	// routes.RegisterEventRoutes(r)
 	// routes.RegisterVariantRoutes(r)
 
