@@ -1,0 +1,6 @@
+CREATE TABLE variants (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    experiment_id INTEGER REFERENCES experiments(id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
