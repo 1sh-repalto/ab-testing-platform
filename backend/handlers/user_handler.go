@@ -131,7 +131,7 @@ func MeHandler(c *gin.Context) {
 		return
 	}
 
-	utils.SendSuccess(c, http.StatusOK, gin.H{"user": user})
+	c.JSON(http.StatusOK, user)
 }
 
 func LogoutHandler(c *gin.Context) {

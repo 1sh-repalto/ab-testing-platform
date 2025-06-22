@@ -8,9 +8,12 @@ import (
 )
 
 func RegisterUserRoutes(r *gin.Engine) {
-	r.POST("/signup", handlers.SignupHandler)
-	r.POST("/login", handlers.LoginHandler)
-	r.GET("/me", middleware.AuthMiddleware(), handlers.MeHandler)
-	r.POST("/logout", middleware.AuthMiddleware(), handlers.LogoutHandler)
-	r.POST("/refresh", handlers.RefreshHandler)
+	auth := r.Group("/api/auth")
+	{
+		auth.POST("/signup", handlers.SignupHandler)
+		auth.POST("/login", handlers.LoginHandler)
+		auth.GET("/me", middleware.AuthMiddleware(), handlers.MeHandler)
+		auth.POST("/logout", middleware.AuthMiddleware(), handlers.LogoutHandler)
+		auth.POST("/refresh", handlers.RefreshHandler)
+	}
 }

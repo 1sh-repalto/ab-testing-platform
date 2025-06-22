@@ -1,18 +1,33 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { fetchUser, signupUser } from "@/api/auth";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export default function SignupPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log({ name, email, password });
-    // TODO: call backend API
+    
+    try {
+      await signupUser({name, email, password});
+      const user = await fetchUser();
+      console.log(user);
+      
+      useAuthStore.getState().setUser(user);
+      toast.success("Signup successful");
+      router.push("/dashboard")
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Signup failed");
+    }
   };
 
   return (
