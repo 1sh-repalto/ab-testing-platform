@@ -188,8 +188,8 @@ func DeleteVariantHandler(c *gin.Context) {
 
 func AssignVariantHandler(c *gin.Context) {
 	var input struct {
-		ExperimentID	int		`json:"experiment_id" binding:"required"`
-		UserIdentifier	string	`json:"user_identifier" binding:"required"`
+		ExperimentID   int    `json:"experiment_id" binding:"required"`
+		UserIdentifier string `json:"user_identifier" binding:"required"`
 	}
 
 	if err := c.ShouldBindBodyWithJSON(&input); err != nil {
@@ -197,33 +197,41 @@ func AssignVariantHandler(c *gin.Context) {
 		return
 	}
 
-	var existingVariantID int
-	err := db.DB.Get(&existingVariantID, `
-		SELECT variant_id FROM variant_assignments
-		WHERE user_identifier = $1 AND experiment_id = $2
+	// Try to fetch existing assigned variant
+	var existingVariant models.Variant
+	err := db.DB.Get(&existingVariant, `
+		SELECT v.* FROM variant_assignments va
+		JOIN variants v ON va.variant_id = v.id
+		WHERE va.user_identifier = $1 AND va.experiment_id = $2
+		LIMIT 1
 	`, input.UserIdentifier, input.ExperimentID)
+
 	if err == nil {
 		utils.SendSuccess(c, http.StatusOK, gin.H{
-			"message": "Already assigned",
-			"variant_id": existingVariantID,
+			"variant": existingVariant,
 		})
 		return
-	} else if !errors.Is(err, sql.ErrNoRows) {
-	utils.SendError(c, http.StatusInternalServerError, "Failed to check existing assignment")
-	return
-}
+	}
 
+	if !errors.Is(err, sql.ErrNoRows) {
+		utils.SendError(c, http.StatusInternalServerError, "Failed to check existing assignment")
+		return
+	}
+
+	// Fetch all variants for the experiment
 	var variants []models.Variant
 	err = db.DB.Select(&variants, `
-		SELECT id, weight FROM variants WHERE experiment_id = $1
+		SELECT * FROM variants WHERE experiment_id = $1
 	`, input.ExperimentID)
 	if err != nil || len(variants) == 0 {
 		utils.SendError(c, http.StatusNotFound, "No variants found for this experiment")
 		return
 	}
 
+	// Pick a variant based on weight
 	selectedVariantID := utils.PickWeightedVariant(variants)
 
+	// Save assignment
 	_, err = db.DB.Exec(`
 		INSERT INTO variant_assignments (user_identifier, experiment_id, variant_id)
 		VALUES ($1, $2, $3)
@@ -233,8 +241,15 @@ func AssignVariantHandler(c *gin.Context) {
 		return
 	}
 
-	utils.SendSuccess(c, http.StatusOK, gin.H{ 
-		"message": "Variant assigned",
-		"variant_id": selectedVariantID,
+	// Fetch full details of assigned variant
+	var assignedVariant models.Variant
+	err = db.DB.Get(&assignedVariant, `SELECT * FROM variants WHERE id = $1`, selectedVariantID)
+	if err != nil {
+		utils.SendError(c, http.StatusInternalServerError, "Failed to fetch assigned variant")
+		return
+	}
+
+	utils.SendSuccess(c, http.StatusOK, gin.H{
+		"variant": assignedVariant,
 	})
 }

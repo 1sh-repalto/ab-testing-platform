@@ -25,7 +25,7 @@ func main() {
 
 	routes.RegisterUserRoutes(r)
 	routes.RegisterExperimentRoutes(r)
-	// routes.RegisterEventRoutes(r)
+	routes.RegisterEventRoutes(r)
 	routes.RegisterVariantRoutes(r)
 
 	log.Println("Server running on :8080")
