@@ -8,10 +8,10 @@ import (
 )
 
 func RegisterExperimentRoutes(r *gin.Engine) {
-	experiment := r.Group("/experiments", middleware.AuthMiddleware())
+	experiment := r.Group("/api", middleware.AuthMiddleware())
 	{
 		experiment.POST("/", handlers.CreateExperimentHandler)
-		experiment.GET("/", handlers.GetUserExperimentsHandler)
+		experiment.GET("/experiments", handlers.GetUserExperimentsHandler)
 		experiment.PUT("/:id", handlers.UpdateExperimentHandler)
 		experiment.DELETE("/:id", handlers.DeleteExperimentHandler)
 	}
