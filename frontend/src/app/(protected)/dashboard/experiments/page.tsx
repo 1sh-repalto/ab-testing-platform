@@ -4,18 +4,17 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { fetchExperiments } from "@/api/experiments"
-import { Experiment } from "@/types/experiment"
+import { fetchAndStoreExperiments } from "@/api/experiments"
+import { useExperimentStore } from "@/store/useExperimentStrore"
 
 export default function ExperimentsPage() {
-  const [experiments, setExperiments] = useState<Experiment[]>([])
+  const { experiments } = useExperimentStore();
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const load = async () => {
       try {
-        const data = await fetchExperiments()     
-        setExperiments(data)
+        await fetchAndStoreExperiments()     
       } catch (err) {
         console.error("Failed to fetch experiments", err)
       } finally {

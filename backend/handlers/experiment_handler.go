@@ -40,7 +40,7 @@ func CreateExperimentHandler(c *gin.Context) {
 
 	utils.SendSuccess(c, http.StatusOK, gin.H{
 		"message": "Experiment created",
-		"experiment": gin.H{
+		"experiment_id": gin.H{
 			"id":          experimentID,
 			"name":        input.Name,
 			"description": input.Description,
